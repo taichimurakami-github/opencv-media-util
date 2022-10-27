@@ -1,6 +1,5 @@
 from asyncio.windows_events import NULL
 import cv2
-import glob
 import os
 
 class ImageCompressor:
