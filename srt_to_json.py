@@ -1,7 +1,6 @@
 import json
 import os
 
-
 class SrtFileConverter:
   _roundMillisec = True
 
@@ -54,6 +53,7 @@ class SrtFileConverter:
     outputDir, outputFilename = os.path.split(outputFilepath)
 
     if os.path.isdir(outputDir) == False:
+      print(f"creating new directory: '{outputDir}'")
       os.makedirs(outputDir)
 
     with open(outputFilepath, 'w') as wf:

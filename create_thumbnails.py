@@ -5,6 +5,7 @@ import cv2
 class CV2VideoCapture:
   _WRITE_THUMBNAIL_DIRPATH = os.path.join(os.getcwd(), '_data')
 
+  # Private methods
   def __init__(self, mediaFilePath:str):
     # save required parameters
     self._cap = cv2.VideoCapture(mediaFilePath)
@@ -32,12 +33,14 @@ class CV2VideoCapture:
     return os.path.join(dirpath, f'{thumbnailId}.{writeFileExt}') 
 
 
+  # Public methods
   def write_thumbnails_every_sec(self, writeFileDirPath:str, writeFileExtension:str = "jpg"):
     for i in range(self._mediaTimeSec + 1): # range : use "<", not "<="
       self._cap.set(cv2.CAP_PROP_POS_MSEC, i * 1000)
       res, img = self._cap.read()
       thumbnailFilename = self._get_thumbnail_filename(writeFileDirPath, i, writeFileExtension)
       cv2.imwrite(thumbnailFilename, img)
+
 
 
 if __name__ == '__main__':
