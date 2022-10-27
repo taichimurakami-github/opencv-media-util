@@ -1,9 +1,6 @@
-from distutils.log import error
 import math
-from msilib.schema import Error
 import os
 import cv2
-
 
 class CV2VideoCapture:
   _WRITE_THUMBNAIL_DIRPATH = os.path.join(os.getcwd(), '_data')
@@ -22,8 +19,6 @@ class CV2VideoCapture:
 
 
   def _get_media_time_sec(self, frameCount, fps):
-    print(frameCount)
-    print(fps)
     return math.floor(frameCount / fps)
 
 
@@ -31,7 +26,7 @@ class CV2VideoCapture:
     dirpath = writeFileDirPath
 
     if os.path.exists(dirpath) == False:
-      print(f"creating new dirpath '{dirpath}'")
+      print(f"creating new directory: '{dirpath}'")
       os.makedirs(dirpath)
 
     return os.path.join(dirpath, f'{thumbnailId}.{writeFileExt}') 
@@ -51,7 +46,7 @@ if __name__ == '__main__':
   mediaFileNameWithoutExt, ext = MEDIA_FILE_NAME.split('.')
   mediaFilepath = os.path.join(os.getcwd(), '_assets', MEDIA_FILE_NAME)
   writeDirpath = os.path.join(os.getcwd(), '_data', mediaFileNameWithoutExt)
-  print(mediaFilepath)
+
   capture = CV2VideoCapture(mediaFilepath)
   capture.write_thumbnails_every_sec(writeDirpath + "/jpg")
   capture.write_thumbnails_every_sec(writeDirpath + "/png", "png")
