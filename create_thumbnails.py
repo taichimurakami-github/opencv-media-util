@@ -41,15 +41,34 @@ class CV2VideoCapture:
       thumbnailFilename = self._get_thumbnail_filename(writeFileDirPath, i, writeFileExtension)
       cv2.imwrite(thumbnailFilename, img)
 
+  def write_jpg_thumbnails_by_range(self,writeFileDirPath:str,startTime_ms: int,interval_ms:int , endTime_ms: int | None = None):
+
+    ## parse and define endTime_ms
+    MEDIA_TIME_MS = endTime_ms
+    if endTime_ms is None :
+        MEDIA_TIME_MS = self._mediaTimeSec * 1000
+
+    ## define output file extension as jpg
+    WRITE_FILE_EXTENSION = "jpg"
+
+    nowTimePtr_ms = startTime_ms
+
+    while(nowTimePtr_ms < MEDIA_TIME_MS):
+      self._cap.set(cv2.CAP_PROP_POS_MSEC, nowTimePtr_ms)
+      res, img = self._cap.read()
+      thumbnailFilename = self._get_thumbnail_filename(writeFileDirPath, nowTimePtr_ms, WRITE_FILE_EXTENSION)
+      cv2.imwrite(thumbnailFilename, img)
+      nowTimePtr_ms += interval_ms
+
 
 
 if __name__ == '__main__':
-  MEDIA_FILE_NAME = "Edan-Meyer_stable-diffusion_edited.mp4"
+  # alpha-code
+  MEDIA_FILE_NAME = "Edan-Meyer_alpha-code_edited.mp4"
 
   mediaFileNameWithoutExt, ext = MEDIA_FILE_NAME.split('.')
   mediaFilepath = os.path.join(os.getcwd(), '_assets', MEDIA_FILE_NAME)
   writeDirpath = os.path.join(os.getcwd(), '_data', mediaFileNameWithoutExt)
 
   capture = CV2VideoCapture(mediaFilepath)
-  capture.write_thumbnails_every_sec(writeDirpath + "/jpg")
-  capture.write_thumbnails_every_sec(writeDirpath + "/png", "png")
+  capture.write_jpg_thumbnails_by_range(writeDirpath + "/jpg", 272 * 1000, 50, 280 * 1000)
