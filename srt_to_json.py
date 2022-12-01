@@ -1,37 +1,43 @@
 import json
 import os
+from common.FileResolver import FileResolver
 
 class SrtFileConverter:
   _roundMillisec = True
 
   # Private methods
-  def _convert_timeformat_to_integers(self, timeFormatStr: str):
+  def __convert_timeformat_to_integers(self, timeFormatStr: str):
     hours, minutes, secondsAndMilliseconds = timeFormatStr.split(":")
     seconds, milliseconds = secondsAndMilliseconds.split(",")
     return (int(hours), int(minutes), int(seconds), int(milliseconds))
     
 
-  def _convert_timeformat_to_sec(self, timeFormatStr: str):
-    hours, minutes, seconds, milliseconds = self._convert_timeformat_to_integers(timeFormatStr)
+  def __convert_timeformat_to_sec(self, timeFormatStr: str):
+    hours, minutes, seconds, milliseconds = self.__convert_timeformat_to_integers(timeFormatStr)
 
     return hours * 60 * 60 + minutes * 60 + seconds + round(milliseconds / 1000)
 
 
-  def _get_timeformat_tupple_from_second_line(self, secondLineStr: str):
+  def __get_timeformat_tupple_from_second_line(self, secondLineStr: str):
     startTimeStr, endTimeStr = secondLineStr.split(" --> ")
 
     return (
-      self._convert_timeformat_to_sec(startTimeStr),
-      self._convert_timeformat_to_sec(endTimeStr)
+      self.__convert_timeformat_to_sec(startTimeStr),
+      self.__convert_timeformat_to_sec(endTimeStr)
     )
+  
+
+  def __get_output_file_path(self, outputDirPath: str):
+    fileName = os.path.join(outputDirPath, 'subtitle.json')
+    return fileName
 
 
   # Public methods
-  def convert_to_json(self, srtFilepath: str, outputFilepath: str, enableRoundMillisec = True):
+  def convert_to_json(self, srtFilePath: str, outputDirPath: str, enableRoundMillisec = True):
     self._roundMillisec = enableRoundMillisec
     convertedDictList = []
 
-    with open(srtFilepath, 'r', encoding="utf-8") as f:
+    with open(srtFilePath, 'r', encoding="utf-8") as f:
       srtRawStr = f.read()
 
       for paragraph in srtRawStr.split('\n\n'):
@@ -41,7 +47,7 @@ class SrtFileConverter:
         if lines[0] == '': break
 
         firstLine, secondLine, thirdLine = lines
-        startTimeStr, endTimeStr = self._get_timeformat_tupple_from_second_line(secondLine)
+        startTimeStr, endTimeStr = self.__get_timeformat_tupple_from_second_line(secondLine)
 
         convertedDictList.append({
           'id': int(firstLine),
@@ -50,13 +56,11 @@ class SrtFileConverter:
           'subtitle': thirdLine
         })
 
-    outputDir, outputFilename = os.path.split(outputFilepath)
+    FileResolver.resolve_dir_exists(outputDirPath)
 
-    if os.path.isdir(outputDir) == False:
-      print(f"creating new directory: '{outputDir}'")
-      os.makedirs(outputDir)
+    outputFilePath = self.__get_output_file_path(outputDirPath)
 
-    with open(outputFilepath, 'w') as wf:
+    with open(outputFilePath , 'w') as wf:
       resultJsonStr = json.dumps(convertedDictList)
       wf.write(resultJsonStr)
 
@@ -64,6 +68,6 @@ class SrtFileConverter:
 
 if __name__ == '__main__':
     converter = SrtFileConverter()
-    srtFilepath = os.path.join(os.getcwd(), "_assets", "EdanMeyer_stable-diffusion_edited.srt")
-    outputFilepath = os.path.join(os.getcwd(), "_data", "EdanMeyer_stable-diffusion_edited/subtitles.json")
-    converter.convert_to_json(srtFilepath, outputFilepath)
+    srtFilePath = os.path.join(os.getcwd(), "_assets", "edan-meyer_vpt.srt")
+    outputFilePath = os.path.join(os.getcwd(), "_data", "Edan-Meyer_vpt/subtitles.json")
+    converter.convert_to_json(srtFilePath, outputFilePath)

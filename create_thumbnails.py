@@ -1,6 +1,7 @@
 import math
 import os
 import cv2
+from common.FileResolver import FileResolver
 
 class CV2VideoCapture:
   _WRITE_THUMBNAIL_DIRPATH = os.path.join(os.getcwd(), '_data')
@@ -16,21 +17,19 @@ class CV2VideoCapture:
     if self._mediaFPS == 0.0 or self._mediaFrameCount == 0.0:
       raise Exception('E_FAILED_TO_LOAD_MEDIA')
 
-    self._mediaTimeSec = self._get_media_time_sec(self._mediaFrameCount, self._mediaFPS)
+    self._mediaTimeSec = self.__get_media_time_sec(self._mediaFrameCount, self._mediaFPS)
 
 
-  def _get_media_time_sec(self, frameCount, fps):
+  def __get_media_time_sec(self, frameCount, fps):
     return math.floor(frameCount / fps)
 
 
-  def _get_thumbnail_filename(self, writeFileDirPath: str, thumbnailId: int, writeFileExt: str):
-    dirpath = writeFileDirPath
+  def __get_thumbnail_filename(self, writeFileDirPath: str, thumbnailId: int, writeFileExt: str):
+    dirPath = writeFileDirPath
 
-    if os.path.exists(dirpath) == False:
-      print(f"creating new directory: '{dirpath}'")
-      os.makedirs(dirpath)
+    FileResolver.resolve_dir_exists(dirPath)
 
-    return os.path.join(dirpath, f'{thumbnailId}.{writeFileExt}') 
+    return os.path.join(dirPath, f'{thumbnailId}.{writeFileExt}') 
 
 
   # Public methods
@@ -38,8 +37,9 @@ class CV2VideoCapture:
     for i in range(self._mediaTimeSec + 1): # range : use "<", not "<="
       self._cap.set(cv2.CAP_PROP_POS_MSEC, i * 1000)
       res, img = self._cap.read()
-      thumbnailFilename = self._get_thumbnail_filename(writeFileDirPath, i, writeFileExtension)
+      thumbnailFilename = self.__get_thumbnail_filename(writeFileDirPath, i, writeFileExtension)
       cv2.imwrite(thumbnailFilename, img)
+
 
   def write_jpg_thumbnails_by_range(self,writeFileDirPath:str,startTime_ms: int,interval_ms:int , endTime_ms: int | None = None):
 
@@ -56,7 +56,7 @@ class CV2VideoCapture:
     while(nowTimePtr_ms < MEDIA_TIME_MS):
       self._cap.set(cv2.CAP_PROP_POS_MSEC, nowTimePtr_ms)
       res, img = self._cap.read()
-      thumbnailFilename = self._get_thumbnail_filename(writeFileDirPath, nowTimePtr_ms, WRITE_FILE_EXTENSION)
+      thumbnailFilename = self.__get_thumbnail_filename(writeFileDirPath, nowTimePtr_ms, WRITE_FILE_EXTENSION)
       cv2.imwrite(thumbnailFilename, img)
       nowTimePtr_ms += interval_ms
 
@@ -64,11 +64,21 @@ class CV2VideoCapture:
 
 if __name__ == '__main__':
   # alpha-code
-  MEDIA_FILE_NAME = "Edan-Meyer_alpha-code_edited.mp4"
+  MEDIA_FILE_NAME = "Edan-Meyer_vpt-edited.mp4"
 
   mediaFileNameWithoutExt, ext = MEDIA_FILE_NAME.split('.')
-  mediaFilepath = os.path.join(os.getcwd(), '_assets', MEDIA_FILE_NAME)
-  writeDirpath = os.path.join(os.getcwd(), '_data', mediaFileNameWithoutExt)
+  mediaFilePath = os.path.join(os.getcwd(), '_assets', MEDIA_FILE_NAME)
+  writeDirPath = os.path.join(os.getcwd(), '_data', mediaFileNameWithoutExt)
 
-  capture = CV2VideoCapture(mediaFilepath)
-  capture.write_jpg_thumbnails_by_range(writeDirpath + "/jpg", 272 * 1000, 50, 280 * 1000)
+  capture = CV2VideoCapture(mediaFilePath)
+  # capture.write_jpg_thumbnails_by_range(writeDirPath + "/jpg", 272 * 1000, 50, 280 * 1000)
+  capture.write_thumbnails_every_sec(writeDirPath)
+
+  MEDIA_FILE_NAME = "Edan-Meyer_gym-mu-rts-edited.mp4"
+
+  mediaFileNameWithoutExt, ext = MEDIA_FILE_NAME.split('.')
+  mediaFilePath = os.path.join(os.getcwd(), '_assets', MEDIA_FILE_NAME)
+  writeDirPath = os.path.join(os.getcwd(), '_data', mediaFileNameWithoutExt)
+
+  capture = CV2VideoCapture(mediaFilePath)
+  capture.write_thumbnails_every_sec(writeDirPath)
