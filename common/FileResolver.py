@@ -3,10 +3,10 @@ import os;
 class FileResolver:
 
   @staticmethod
-  def get_asset_file_and_result_dir_path(assetFileName: str, sourceFileType: str):
+  def get_asset_file_and_result_dir_path(assetFileName: str, outputFileCategoryName: str):
     sourceFileNameWithoutExt, ext = assetFileName.split('.')
     sourceFilePath = os.path.join(os.getcwd(), '_assets', assetFileName)
-    resultDirPath = os.path.join(os.getcwd(), '_data', sourceFileNameWithoutExt, sourceFileType)
+    resultDirPath = os.path.join(os.getcwd(), '_data', sourceFileNameWithoutExt, outputFileCategoryName)
 
     return (sourceFilePath, resultDirPath)
 
